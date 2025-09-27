@@ -1,5 +1,5 @@
-if (game:GetService("CoreGui")):FindFirstChild("Luna Hub") and (game:GetService("CoreGui")):FindFirstChild("ScreenGui") then
-	(game:GetService("CoreGui")).LunaHub:Destroy();
+if (game:GetService("CoreGui")):FindFirstChild("RelzHub") and (game:GetService("CoreGui")):FindFirstChild("ScreenGui") then
+	(game:GetService("CoreGui")).RelzHub:Destroy();
 	(game:GetService("CoreGui")).ScreenGui:Destroy();
 end;
 _G.Primary = Color3.fromRGB(100, 100, 100);
