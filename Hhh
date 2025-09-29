@@ -16,25 +16,21 @@ local function Tween(object, properties, duration)
     return tween
 end
 
--- Main Window Function
 function UI.CreateWindow(config)
     local window = {}
-    
-    -- Colors
     local Colors = {
         Primary = config.Primary or Color3.fromRGB(30,30,30),
         Accent = config.Accent or Color3.fromRGB(255,0,0),
         Background = config.Background or Color3.fromRGB(20,20,20),
         TextColor = config.TextColor or Color3.new(1,1,1),
-        LogoColor = config.LogoColor or Color3.fromRGB(255,255,255),
+        LogoColor = config.LogoColor or Color3.fromRGB(255,255,255)
     }
 
-    -- Main Gui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "MyUILibrary"
-    ScreenGui.Parent = CoreGui
+    ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
+
     -- Main Frame
     local WindowFrame = Instance.new("Frame", ScreenGui)
     WindowFrame.Size = config.Size or UDim2.new(0, 700, 0, 500)
@@ -54,11 +50,11 @@ function UI.CreateWindow(config)
     btnClose.TextSize = 20
     CreateRounded(btnClose, 8)
 
-    -- Hide/Show Logo
+    -- Logo (hidden by default)
     local Logo = Instance.new("ImageLabel", WindowFrame)
     Logo.Size = UDim2.new(0, 50, 0, 50)
     Logo.Position = UDim2.new(0, 10, 0, 10)
-    Logo.Image = "rbxassetid://13940080072" -- your logo here
+    Logo.Image = "rbxassetid://13940080072" -- replace with your logo ID
     Logo.BackgroundTransparency = 1
     Logo.Visible = false
 
@@ -67,6 +63,7 @@ function UI.CreateWindow(config)
         Logo.Visible = true
     end)
 
+    -- Toggle Hide/Show button
     local btnLogoHide = Instance.new("TextButton", WindowFrame)
     btnLogoHide.Size = UDim2.new(0, 40, 0, 40)
     btnLogoHide.Position = UDim2.new(1, -45, 0, 5)
@@ -89,27 +86,25 @@ function UI.CreateWindow(config)
     Sidebar.BackgroundColor3 = Colors.Primary
     CreateRounded(Sidebar, 12)
 
-    -- Container for content
+    -- Content container
     local ContentContainer = Instance.new("Frame", WindowFrame)
     ContentContainer.Size = UDim2.new(1, -150, 1, -50)
     ContentContainer.Position = UDim2.new(0, 150, 0, 50)
     ContentContainer.BackgroundTransparency = 1
 
-    -- Store tabs
-    local TabsFolder = Instance.new("Folder", ContentContainer)
-    local CurrentPage = nil
+    local currentPage = nil
 
-    -- Function to create a tab
+    -- CreateTab function
     function window:CreateTab(name)
-        local tabButton = Instance.new("TextButton", Sidebar)
-        tabButton.Size = UDim2.new(1, -20, 0, 40)
-        tabButton.Position = UDim2.new(0, 10, 0, (#Sidebar:GetChildren() -1) * 45 + 10)
-        tabButton.BackgroundColor3 = Colors.Background
-        tabButton.Text = name
-        tabButton.Font = Enum.Font.GothamBold
-        tabButton.TextSize = 14
-        tabButton.TextColor3 = Colors.TextColor
-        CreateRounded(tabButton, 8)
+        local tabBtn = Instance.new("TextButton", Sidebar)
+        tabBtn.Size = UDim2.new(1, -20, 0, 40)
+        tabBtn.Position = UDim2.new(0, 10, 0, (#Sidebar:GetChildren() - 1) * 45 + 10)
+        tabBtn.BackgroundColor3 = Colors.Background
+        tabBtn.Text = name
+        tabBtn.Font = Enum.Font.GothamBold
+        tabBtn.TextSize = 14
+        tabBtn.TextColor3 = Colors.TextColor
+        CreateRounded(tabBtn, 8)
 
         local pageFrame = Instance.new("Frame", ContentContainer)
         pageFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -117,24 +112,57 @@ function UI.CreateWindow(config)
         pageFrame.BackgroundTransparency = 1
         pageFrame.Visible = false
 
-        local page = {}
-        page.Frame = pageFrame
+        local page = {
+            Frame = pageFrame
+        }
 
-        tabButton.MouseButton1Click:Connect(function()
-            if CurrentPage then
-                CurrentPage.Frame.Visible = false
+        tabBtn.MouseButton1Click:Connect(function()
+            if currentPage then
+                currentPage.Frame.Visible = false
             end
             page.Frame.Visible = true
-            CurrentPage = page
+            currentPage = page
         end)
 
-        return {
-            Button = tabButton,
-            Page = page
-        }
+        -- AddPage function
+        function page:AddPage(pageName)
+            -- create page button
+            local pageBtn = Instance.new("TextButton", Sidebar)
+            pageBtn.Size = UDim2.new(1, -20, 0, 40)
+            pageBtn.Position = UDim2.new(0, 10, 0, (#Sidebar:GetChildren() - 1) * 45 + 10)
+            pageBtn.BackgroundColor3 = Colors.Background
+            pageBtn.Text = pageName
+            pageBtn.Font = Enum.Font.GothamBold
+            pageBtn.TextSize = 14
+            pageBtn.TextColor3 = Colors.TextColor
+            CreateRounded(pageBtn, 8)
+
+            local pageFrame = Instance.new("Frame", ContentContainer)
+            pageFrame.Size = UDim2.new(1, 0, 1, 0)
+            pageFrame.Position = UDim2.new(0, 0, 0, 0)
+            pageFrame.BackgroundTransparency = 1
+            pageFrame.Visible = false
+
+            local subPage = {
+                Frame = pageFrame
+            }
+
+            pageBtn.MouseButton1Click:Connect(function()
+                if currentPage then
+                    currentPage.Frame.Visible = false
+                end
+                subPage.Frame.Visible = true
+                currentPage = subPage
+            end)
+
+            return subPage
+        end
+
+        return page
     end
 
-    -- Function to add button
+    -- Create components functions
+
     function window:CreateButton(parent, text, callback)
         local btn = Instance.new("TextButton", parent)
         btn.Size = UDim2.new(1, -20, 0, 40)
@@ -150,7 +178,6 @@ function UI.CreateWindow(config)
         return btn
     end
 
-    -- Function to add label
     function window:CreateLabel(parent, text)
         local label = Instance.new("TextLabel", parent)
         label.Size = UDim2.new(1, -20, 0, 30)
@@ -163,7 +190,6 @@ function UI.CreateWindow(config)
         return label
     end
 
-    -- Function to add switch (toggle)
     function window:CreateSwitch(parent, text, default, callback)
         local toggled = default
         local container = Instance.new("Frame", parent)
@@ -188,6 +214,7 @@ function UI.CreateWindow(config)
         toggleBtn.Size = UDim2.new(1, 0, 1, 0)
         toggleBtn.BackgroundTransparency = 1
         toggleBtn.Text = ""
+
         local circle = Instance.new("Frame", toggleBtn)
         circle.Size = UDim2.new(0, 14, 0, 14)
         circle.Position = UDim2.new(0, 3, 0.5, -7)
@@ -221,7 +248,6 @@ function UI.CreateWindow(config)
         }
     end
 
-    -- Dropdown
     function window:CreateDropdown(parent, labelText, options, default, callback)
         local selected = default or options[1]
         local container = Instance.new("Frame", parent)
@@ -234,16 +260,15 @@ function UI.CreateWindow(config)
         label.TextSize = 14
         label.TextColor3 = Colors.TextColor
         label.Size = UDim2.new(1, 0, 0, 20)
-        label.BackgroundTransparency = 1
 
-        local dropdownButton = Instance.new("TextButton", container)
-        dropdownButton.Size = UDim2.new(1, 0, 0, 30)
-        dropdownButton.Position = UDim2.new(0, 0, 0, 20)
-        dropdownButton.BackgroundColor3 = Colors.Primary
-        dropdownButton.Text = selected
-        dropdownButton.Font = Enum.Font.GothamBold
-        dropdownButton.TextColor3 = Colors.TextColor
-        CreateRounded(dropdownButton, 8)
+        local dropdownBtn = Instance.new("TextButton", container)
+        dropdownBtn.Size = UDim2.new(1, 0, 0, 30)
+        dropdownBtn.Position = UDim2.new(0, 0, 0, 20)
+        dropdownBtn.BackgroundColor3 = Colors.Primary
+        dropdownBtn.Text = selected
+        dropdownBtn.Font = Enum.Font.GothamBold
+        dropdownBtn.TextColor3 = Colors.TextColor
+        CreateRounded(dropdownBtn, 8)
 
         local optionsFrame = Instance.new("Frame", container)
         optionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -264,7 +289,7 @@ function UI.CreateWindow(config)
         for _, opt in ipairs(options) do
             local optBtn = Instance.new("TextButton", optionsFrame)
             optBtn.Size = UDim2.new(1, -10, 0, 30)
-            optBtn.Position = UDim2.new(0, 5, 0, (#options - _)*30)
+            optBtn.Position = UDim2.new(0, 5, 0, (#options - _) * 30)
             optBtn.BackgroundColor3 = Colors.Primary
             optBtn.Text = opt
             optBtn.Font = Enum.Font.Gotham
@@ -273,24 +298,23 @@ function UI.CreateWindow(config)
 
             optBtn.MouseButton1Click:Connect(function()
                 selected = opt
-                dropdownButton.Text = opt
+                dropdownBtn.Text = opt
                 toggleOptions()
                 pcall(callback, opt)
             end)
         end
 
-        dropdownButton.MouseButton1Click:Connect(toggleOptions)
+        dropdownBtn.MouseButton1Click:Connect(toggleOptions)
 
         return {
             Get = function() return selected end,
             Set = function(val)
                 selected = val
-                dropdownButton.Text = val
+                dropdownBtn.Text = val
             end
         }
     end
 
-    -- TextBox
     function window:CreateTextbox(parent, labelText, defaultText, callback)
         local container = Instance.new("Frame", parent)
         container.Size = UDim2.new(1, -20, 0, 50)
@@ -302,7 +326,6 @@ function UI.CreateWindow(config)
         label.TextSize = 14
         label.TextColor3 = Colors.TextColor
         label.Size = UDim2.new(1, 0, 0, 20)
-        label.BackgroundTransparency = 1
 
         local box = Instance.new("TextBox", container)
         box.Size = UDim2.new(1, 0, 0, 30)
@@ -321,7 +344,6 @@ function UI.CreateWindow(config)
         return box
     end
 
-    -- Slider
     function window:CreateSlider(parent, labelText, min, max, default, callback)
         local value = default or min
         local container = Instance.new("Frame", parent)
@@ -390,7 +412,6 @@ function UI.CreateWindow(config)
         }
     end
 
-    -- Folder (expand/collapse)
     function window:CreateFolder(parent, name)
         local folder = {}
         local folderFrame = Instance.new("Frame", parent)
@@ -424,6 +445,7 @@ function UI.CreateWindow(config)
             end
         end)
 
+        -- AddComponent method for folder
         function folder:AddComponent(componentType, name, ...)
             local comp
             if componentType == "Button" then
@@ -433,11 +455,11 @@ function UI.CreateWindow(config)
             elseif componentType == "Switch" then
                 comp = UI.CreateSwitch(childrenFolder, name, ...)
             elseif componentType == "Dropdown" then
-                comp = UI.CreateDropdown(childrenFolder, name, ..., ...)
+                comp = UI.CreateDropdown(childrenFolder, name, {...}, ..., ...)
             elseif componentType == "Textbox" then
                 comp = UI.CreateTextbox(childrenFolder, name, ..., ...)
             elseif componentType == "Slider" then
-                comp = UI.CreateSlider(childrenFolder, name, ...)
+                comp = UI.CreateSlider(childrenFolder, name, ..., ...)
             end
             return comp
         end
@@ -445,26 +467,16 @@ function UI.CreateWindow(config)
         return folder
     end
 
-    -- Show and hide with logo
-    local isHidden = false
-    local logo = Instance.new("ImageLabel", WindowFrame)
-    logo.Size = UDim2.new(0, 100, 0, 100)
-    logo.Position = UDim2.new(0.5, -50, 0.5, -50)
-    logo.Image = "rbxassetid://13940080072"
-    logo.BackgroundTransparency = 1
-    logo.Visible = false
-
+    -- Hide / Show with Logo
     function window:Hide()
         WindowFrame.Visible = false
-        logo.Visible = true
+        Logo.Visible = true
     end
-
     function window:Show()
         WindowFrame.Visible = true
-        logo.Visible = false
+        Logo.Visible = false
     end
 
-    -- Return the window object
     return window
 end
 
